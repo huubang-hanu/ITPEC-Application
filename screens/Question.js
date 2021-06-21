@@ -1,88 +1,125 @@
-import React, {useEffect, useState} from 'react'
-import { StyleSheet, View, ScrollView, TouchableOpacity,Alert } from 'react-native';
-import { RadioButton, Text} from 'react-native-paper';
-import { AntDesign } from '@expo/vector-icons'; 
+import React, { useEffect, useState } from 'react'
+import { StyleSheet, View, ScrollView, TouchableOpacity, Alert, Button } from 'react-native';
+import { RadioButton, Text } from 'react-native-paper';
+import { AntDesign } from '@expo/vector-icons';
+
+
+const Question = ({ route, navigation }) => {
 
 
 
-
-let user_ans = {};
-
-
-
-const Question = ({route, navigation}) => {
-
-    const {examType, questions} = route.params;
+    const { examType, questions } = route.params;
     const [userAnswer, setUserAnswer] = useState({});
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [timeUp, setTimeUp] = useState(false);
-    const [timeInSecond, setTimeInSecond] = useState(1200);
+    const [timer, setTimmer] = useState(1800); //Total time
+    const [mins, setMins] = useState('');   //The remaining minutes
+    const [secs, setSecs] = useState('');   //The remaining seconds
 
-    let initalQuizs =  [];
-    if(examType == "IP" ){
-        initalQuizs  =questions.itpassport;
-    }else{
+
+    let initalQuizs = [];
+    if (examType == "IP") {
+        initalQuizs = questions.itpassport;
+    } else {
         initalQuizs = questions.fe;
     };
     const [quizs, setQuizs] = useState(initalQuizs);
 
-    const onSubmit = () =>{
-        
+
+    useEffect(() => {
+        let interval = setInterval(() => {
+            setTimmer(lastTimerCount => {
+                lastTimerCount <= 1 && clearInterval(interval);
+                return lastTimerCount - 1;
+            })
+        }, 1000);
+        return () => {
+            clearInterval(interval)
+        }
+    }, [])
+
+    useEffect(() => {
+        //If time up --> Auto submit quiz
+        if (timer == 0) {
+            navigation.navigate('Result', { userAnswer, quizs })
+        }
+
+        //Set mins each time timer change
+        setMins(() => {
+            let mins = Math.floor((timer / 60) % 60);
+            let displayMins = mins < 10 ? `0${mins}` : mins;
+            return displayMins;
+        })
+
+        //Set mins each time timer change
+        setSecs(() => {
+            let seconds = Math.floor(timer % 60);
+            let displaySeconds = seconds < 10 ? `0${seconds}` : seconds;
+            return displaySeconds
+        })
+
+    }, [timer])
+
+
+
+    const onSubmit = () => {
+
         Alert.alert(
             'Submission', 'Do you want to finish your test ?',
             [
-                {text: "Cancel", onPress: () => null, style: "cancel"},
-                {text: "Ok", onPress: () => navigation.navigate('Result', {userAnswer, quizs})}
+                { text: "Cancel", onPress: () => null, style: "cancel" },
+                { text: "Ok", onPress: () => navigation.navigate('Result', { userAnswer, quizs }) }
 
             ]
         )
     }
 
 
-    const prevPress = () =>{
-        if(currentIndex > 0){
-            setCurrentIndex(currentIndex -1)}
-        };
-
-    const nextPress = () =>{
-        if(currentIndex < 19){
-            setCurrentIndex(currentIndex +1)}
+    const prevPress = () => {
+        if (currentIndex > 0) {
+            setCurrentIndex(currentIndex - 1)
         }
+    };
+
+    const nextPress = () => {
+        if (currentIndex < 19) {
+            setCurrentIndex(currentIndex + 1)
+        }
+    }
 
     useEffect(() => {
-        
+
         //If user has choosen answer for quiz in currentIndex
-        if(userAnswer.hasOwnProperty(quizs[currentIndex]._id)){
+        if (userAnswer.hasOwnProperty(quizs[currentIndex]._id)) {
             setValue(userAnswer[quizs[currentIndex]._id]); //set value for it
-        }else{
+        } else {
             setValue('');
         }
-        
+
     }, [currentIndex])
 
     const [value, setValue] = React.useState();
 
 
 
-    const onRadioButtonChange = (valueChange) =>{
+    const onRadioButtonChange = (valueChange) => {
         setValue(valueChange);
         user_ans[`${quizs[currentIndex]._id}`] = valueChange;
         setUserAnswer(user_ans);
     }
-    
+
 
     return (
         <View>
             <View style={styles.navBar}>
-                <Text>20':00''</Text>
+                <Text>{mins} : {secs} </Text>
                 <TouchableOpacity onPress={onSubmit}>
                     <Text>SUBMIT</Text>
                 </TouchableOpacity>
             </View>
 
             <ScrollView style={styles.scrollView}>
-                <Text style={styles.quiz}>Question {currentIndex +1}: {quizs[currentIndex].text}</Text>
-                <RadioButton.Group  onValueChange={newValue => onRadioButtonChange(newValue)} value={value}>
+                <Text style={styles.quiz}>Question {currentIndex + 1}: {quizs[currentIndex].text}</Text>
+                <RadioButton.Group onValueChange={newValue => onRadioButtonChange(newValue)} value={value}>
                     <View style={styles.button}>
                         <RadioButton.Item style={styles.radioButton} label={quizs[currentIndex].answers[0]} value="0" />
                     </View>
@@ -102,14 +139,14 @@ const Question = ({route, navigation}) => {
                 <TouchableOpacity onPress={prevPress}>
                     <AntDesign name="left" size={35} color="black" />
                 </TouchableOpacity>
-                
-                <Text>Question {currentIndex +1}/20</Text>
-                
+
+                <Text>Question {currentIndex + 1}/20</Text>
+
                 <TouchableOpacity onPress={nextPress} >
-                <AntDesign name="right" size={35} color="black" />
+                    <AntDesign name="right" size={35} color="black" />
                 </TouchableOpacity>
             </View>
-            
+
 
         </View>
     )
@@ -129,7 +166,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginTop: 10,
-    
+
     },
 
     button: {
@@ -141,19 +178,19 @@ const styles = StyleSheet.create({
         width: "100%",
         marginTop: 20,
     },
-    quiz:{
+    quiz: {
         color: "black",
         fontSize: 15,
         fontWeight: 'bold'
-    }, 
-    scrollView:{
-        height:'80%',
+    },
+    scrollView: {
+        height: '80%',
         marginTop: 10,
         marginLeft: 10,
         marginRight: 10,
-        marginBottom:5,
-    }, 
-    footer:{
+        marginBottom: 5,
+    },
+    footer: {
         marginTop: 8,
         flexDirection: 'row',
         justifyContent: 'space-evenly',

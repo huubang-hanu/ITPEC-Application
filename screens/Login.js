@@ -1,92 +1,90 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableWithoutFeedback, Keyboard, CheckBox, TouchableOpacity, Alert } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
-import {accountData} from '../data/Account';
+import firebase from "../firebase/Config";
 
 
 
-
-const Login = ({navigation}) => {
-    const [account, setAccount] = useState({username:'', password:''})
+const Login = ({ navigation }) => {
+    const [account, setAccount] = useState({ username: '', password: '' })
     const [isSelected, setSelection] = useState(false);
 
 
-    const onPressHandler = () => {
-        if(accountData.username == account.username && accountData.password == account.password){
+    const onPressHandler = async () => {
+        try {
+            const response = await firebase.auth().signInWithEmailAndPassword(account.username, account.password);
             navigation.navigate('Home');
-        }else if(account.username.length === 0 || account.password.length === 0){
-            Alert.alert('Warning','Please enter required infomation', [
-                {text: 'Ok'}])
-        }else{
-            Alert.alert('Error','Wrong username or password', [
-                {text: 'Ok'}])
+
+        } catch (error) {
+            Alert.alert('Warning', error.message, [
+                { text: 'Ok' }])
         }
-        
+
     }
 
 
-    
-    const onUsernameChange =(val)=>{
-        setAccount({...account, username: val});
+
+    const onUsernameChange = (val) => {
+        setAccount({ ...account, username: val });
     };
 
-    const onPasswordChange =(val)=>{
-        setAccount({...account, password: val});
+    const onPasswordChange = (val) => {
+        setAccount({ ...account, password: val });
     };
 
     return (
-        <TouchableWithoutFeedback onPress={()=>{Keyboard.dismiss()}}>
+        <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss() }}>
             <View>
                 <Text style={styles.loginText}>Login</Text>
 
                 <View style={styles.inputContainer}>
-                     {/**Username input */}
+                    {/**Username input */}
                     <TextInput
-                    style={styles.input}
-                    onChangeText={onUsernameChange}
-                    placeholder="Username"
+                        style={styles.input}
+                        onChangeText={onUsernameChange}
+                        placeholder="Username"
                     />
 
                     {/**Password input */}
                     <TextInput
-                    secureTextEntry={true}
-                    style={styles.input}
-                    onChangeText={onPasswordChange}
-                    placeholder="Password"
+                        secureTextEntry={true}
+                        style={styles.input}
+                        onChangeText={onPasswordChange}
+                        placeholder="Password"
                     />
                 </View>
 
                 <View style={styles.checkboxContainer}>
                     <CheckBox
-                    value={isSelected}
-                    onValueChange={setSelection}
-                    style={styles.checkbox}
+                        value={isSelected}
+                        onValueChange={setSelection}
+                        style={styles.checkbox}
                     />
-                    
+
                     <Text style={styles.label}>Remember me</Text>
                 </View>
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity
-                            style={styles.loginButton}
-                            onPress={onPressHandler}
+                        style={styles.loginButton}
+                        onPress={onPressHandler}
                     >
-                        <Text style={{color: '#ffffff', fontSize: 18, fontWeight: 'bold'}}>Login</Text>
+                        <Text style={{ color: '#ffffff', fontSize: 18, fontWeight: 'bold' }}>Login</Text>
                     </TouchableOpacity>
                 </View>
-                
 
-                
-                
+
+
+
                 <View style={styles.iconContainer}>
                     <FontAwesome5 style={styles.icon} name="facebook" size={35} color="#00a8d6" />
                     <FontAwesome5 style={styles.icon} name="github" size={35} color="black" />
                     <FontAwesome5 style={styles.icon} name="google" size={35} color="#e84220" />
                 </View>
-            
+
             </View>
         </TouchableWithoutFeedback>
 
-        
+
     )
 }
 
@@ -101,32 +99,32 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingStart: 10
     },
-    iconContainer:{
-        flexDirection:'row',
+    iconContainer: {
+        flexDirection: 'row',
         justifyContent: 'center',
         marginTop: 18
-        
+
     },
-    icon:{
+    icon: {
         margin: 14
     },
-    loginText:{
+    loginText: {
         color: '#192730',
         fontSize: 36,
         fontWeight: 'bold',
         marginStart: 30,
         marginTop: 40,
     },
-    inputContainer:{
+    inputContainer: {
         marginStart: 20,
         marginTop: 40
 
     },
-    buttonContainer:{
+    buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'flex-end'
     },
-    loginButton:{
+    loginButton: {
         alignItems: "center",
         backgroundColor: "#2492ed",
         justifyContent: 'center',

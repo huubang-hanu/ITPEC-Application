@@ -1,6 +1,6 @@
 import React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 import Login from './screens/Login';
 import Home from './screens/Home';
 import Question from './screens/Question'
@@ -14,10 +14,10 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name='Login' component={Login}/>
-        <Stack.Screen name='Home' component={Home}/>
-        <Stack.Screen name='Question' component={Question}/>
-        <Stack.Screen name = 'Result' component = {Result}/>
+        <Stack.Screen name='Login' component={Login} />
+        <Stack.Screen name='Home' component={Home} />
+        <Stack.Screen name='Question' component={Question} />
+        <Stack.Screen name='Result' component={Result} />
       </Stack.Navigator>
     </NavigationContainer>
   );
